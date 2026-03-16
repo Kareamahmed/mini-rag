@@ -14,6 +14,13 @@
 $ python -m venv mini-rag
 ```
 3. Activate the environment:
+
+On Linux / macOS
+```bash
+$ source mini-rag/bin/activate
+```
+On Windows (PowerShell)
+
 ```bash
 $ mini-rag\Scripts\activate
 ```
@@ -28,3 +35,8 @@ Setup the environment variables
 $ cp .env.example .env
 ```
 Set your environment variables in the .env file. Like OPENAI_API_KEY value.
+
+## Run the FastAPI server
+```bash
+$ uvicorn main:app --reload --host 0.0.0.0 --port 5000
+```
