@@ -17,12 +17,12 @@ $ python -m venv mini-rag
 
 On Linux / macOS
 ```bash
-$ source mini-rag/bin/activate
+$ source mini-rag-app/bin/activate
 ```
 On Windows (PowerShell)
 
 ```bash
-$ mini-rag\Scripts\activate
+$ mini-rag-app\Scripts\activate
 ```
 ## Installation
 
