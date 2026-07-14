@@ -15,7 +15,9 @@ data_router = APIRouter(prefix="/api/v1/data", tags=["api_v1", "data"])
 async def upload_data(
     project_id: str, file: UploadFile, app_setting: Settings = Depends(get_settings)
 ):
+    
     data_controller = DataController()
+
     # validate file properties
     is_valid, signal = data_controller.validate_uploaded_file(file=file)
 
@@ -25,15 +27,19 @@ async def upload_data(
         )
 
     project_dir_path = ProjectController().get_project_path(project_id=project_id)
+
+    file_id = data_controller.generate_unique_filename(original_filename=file.filename)
     file_path = os.path.join(
         project_dir_path,
-        data_controller.generate_unique_filename(original_filename=file.filename),
+        file_id,
     )
 
+    # write the file  
     try:
         async with aiofiles.open(file_path, "wb") as f:
             while chunk := await file.read(app_setting.FILE_DEFAULT_CHUNK_SIZE):
                 await f.write(chunk)
+
     except Exception as e:
 
         logger.error(f"error while uploading file {e}")
@@ -43,4 +49,4 @@ async def upload_data(
             content={"message": ResponseSignal.FILE_UPLOAD_FILED.value},
         )
 
-    return JSONResponse(content={"message": signal})
+    return JSONResponse(content={"message": signal , 'file_id':file_id})

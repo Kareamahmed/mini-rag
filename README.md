@@ -11,7 +11,7 @@
 2. Create a virtual environment:
 
 ```bash
-$ python -m venv mini-rag
+$ python -m venv mini-rag-app
 ```
 3. Activate the environment:
 
