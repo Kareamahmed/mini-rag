@@ -12,10 +12,9 @@ async def lifespan(app: FastAPI):
     app.mongo_conn = AsyncMongoClient(settings.MONGO_URL)
     app.db_client = app.mongo_conn[settings.MONGODB_DATABASE]
 
-    yield  
+    yield
 
-    app.mongo_conn.close()
-
+    await app.mongo_conn.close()
 
 
 app = FastAPI(lifespan=lifespan)
