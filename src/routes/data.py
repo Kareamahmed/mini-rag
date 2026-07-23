@@ -21,7 +21,7 @@ async def upload_data(
     app_setting: Settings = Depends(get_settings),
 ):
     # database
-    project_model = ProjectModel(db_client=request.app.db_client)
+    project_model = await ProjectModel.get_instance(db_client=request.app.db_client)
     project = await project_model.get_project_or_create_one(project_id=project_id)
 
     data_controller = DataController()
@@ -68,10 +68,11 @@ async def process_endpoint(
     chunk_size = process_request.chunk_size
     overlap_size = process_request.overlap_size
     reset = process_request.do_reset
+
     # database
-    project_model = ProjectModel(db_client=request.app.db_client)
+    project_model = await ProjectModel.get_instance(db_client=request.app.db_client)
     project = await project_model.get_project_or_create_one(project_id=project_id)
-    chunk_model = ChunkModel(db_client=request.app.db_client)
+    chunk_model = await ChunkModel.get_instance(db_client=request.app.db_client)
 
     process_controller = ProcessController(project_id=project_id)
 
