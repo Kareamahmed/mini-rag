@@ -4,10 +4,10 @@ from helpers.config import get_settings, Settings
 import aiofiles
 import os
 from controllers import DataController, ProjectController, ProcessController
-from models import ResponseSignal, ProjectModel, ChunkModel
+from models import ResponseSignal, ProjectModel, ChunkModel, FileModel, FileTypeEnums
 import logging
 from .schemes.data import ProcessRequest
-from models.db_schemes import DataChunk
+from models.db_schemes import DataChunk, File
 
 logger = logging.getLogger("uvicorn.error")
 data_router = APIRouter(prefix="/api/v1/data", tags=["api_v1", "data"])
@@ -21,7 +21,8 @@ async def upload_data(
     app_setting: Settings = Depends(get_settings),
 ):
     # database
-    project_model = await ProjectModel.get_instance(db_client=request.app.db_client)
+    db_client = request.app.db_client
+    project_model = await ProjectModel.get_instance(db_client=db_client)
     project = await project_model.get_project_or_create_one(project_id=project_id)
 
     data_controller = DataController()
@@ -56,7 +57,18 @@ async def upload_data(
             content={"message": ResponseSignal.FILE_UPLOAD_FILED.value},
         )
 
-    return JSONResponse(content={"message": signal, "file_id": file_id})
+    # store file into database
+    file_model = await FileModel.get_instance(db_client=db_client)
+    file_record = await file_model.insert_file(
+        File(
+            file_project_id=project.id,
+            file_name=file_id,
+            file_size=os.path.getsize(file_path),
+            file_type=FileTypeEnums.FILE.value,
+        )
+    )
+
+    return JSONResponse(content={"message": signal, "file_id": str(file_record.id)})
 
 
 @data_router.post("/process/{project_id}")
@@ -104,8 +116,7 @@ async def process_endpoint(
             project_id=project.id
         )
         return deleted_count
-    
-    
+
     no_records = await chunk_model.insert_many_chunks(chunks=chunks_records)
     return JSONResponse(
         content={
