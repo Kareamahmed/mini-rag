@@ -32,13 +32,30 @@ class FileModel(BaseDataModel):
         file.id = result.inserted_id
         return file
 
-    async def get_all_files(self, file_project_id: str, ):
-        return await self.collection.find(
+    async def get_all_files(self, file_project_id: str, file_type: str):
+        records = await self.collection.find(
             {
-                "file_project_id": (
-                    ObjectId(file_project_id)
-                    if isinstance(file_project_id, str)
-                    else file_project_id
-                )
+                "file_project_id": self.get_file_project_id(file_project_id),
+                "file_type": file_type,
             }
         ).to_list(length=None)
+
+        return [File(**record) for record in records]
+
+    async def get_file_record(self, file_project_id: str, file_name: str):
+        record = await self.collection.find_one(
+            {
+                "file_project_id": self.get_file_project_id(file_project_id),
+                "file_name": file_name,
+            }
+        )
+        if record is None:
+            return None
+        return File(**record)
+
+    def get_file_project_id(self, file_project_id: str):
+        return (
+            ObjectId(file_project_id)
+            if isinstance(file_project_id, str)
+            else file_project_id
+        )
