@@ -1,5 +1,5 @@
-from stores.LLMInterface import LLMInterface
-from stores.LLMEnums import CoHereEnums, DocumentTypeEnums
+from ..LLMInterface import LLMInterface
+from ..LLMEnums import CoHereEnums, DocumentTypeEnums
 import cohere
 import logging
 

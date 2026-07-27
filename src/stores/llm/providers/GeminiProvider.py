@@ -1,5 +1,5 @@
-from ...LLMInterface import LLMInterface
-from ...LLMEnums import GoogleEnums
+from ..LLMInterface import LLMInterface
+from ..LLMEnums import GoogleEnums
 from google import genai
 from google.genai import types
 import logging
