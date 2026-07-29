@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     TEMPERATURE: float
     EMBEDDING_SIZE: int
 
+    ## VectorDB config
+    VECTOR_DB_BACKEND: str
+    VECTOR_DB_PATH: str
+    VECTOR_DISTANCE_METRIC: str
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
