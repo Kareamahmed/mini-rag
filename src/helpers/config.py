@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     GENERATION_MODEL_ID: str
     EMBEDDING_MODEL_ID: str
 
+    MAX_INPUT_TOKENS: int
+    MAX_OUTPUT_TOKENS: int
+    TEMPERATURE: float
+    EMBEDDING_SIZE: int
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
