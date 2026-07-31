@@ -37,7 +37,13 @@ class Qdrant(VectorDBInterface):
             )  # return True or False
 
     def get_collection_info(self, collection_name):
-        return self.client.get_collection(collection_name=collection_name)
+        try:
+            return self.client.get_collection(collection_name=collection_name)
+        except Exception as e:
+            self.logger.error(
+                f"Failed to get collection info about {collection_name}: {e}"
+            )
+            return None
 
     def get_all_collections(self):
         return self.client.get_collections()

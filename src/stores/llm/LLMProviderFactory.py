@@ -17,7 +17,7 @@ class LLMProviderFactory:
             )
         if provider_name == LLMEnums.COHERE.value:
             return CoHereProvider(
-                api_key=self.settings.GEMINI_API_KEY,
+                api_key=self.settings.COHERE_API_KEY,
                 max_input_tokens=self.settings.MAX_INPUT_TOKENS,
                 max_output_tokens=self.settings.MAX_OUTPUT_TOKENS,
                 temperature=self.settings.TEMPERATURE,

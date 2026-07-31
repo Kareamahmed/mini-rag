@@ -1,7 +1,7 @@
 from helpers.config import Settings
 from .providers.Qdrant import Qdrant
 from controllers.BaseController import BaseController
-from VectorDBEnums import VectorDBEnums
+from .VectorDBEnums import VectorDBEnums
 
 
 class VectorDBFactory:
