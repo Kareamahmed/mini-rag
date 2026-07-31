@@ -11,10 +11,9 @@ class ChunkModel(BaseDataModel):
         super().__init__(db_client)
         self.collection = self.db_client[DatabaseEnums.COLLECTION_CHUNK_NAME.value]
 
-  
     @classmethod
     async def get_instance(cls, db_client: object):
-        instance = cls(db_client=db_client) # cls == ProjectModel
+        instance = cls(db_client=db_client)  # cls == ProjectModel
         await instance.init_collection()
         return instance
 
@@ -52,7 +51,20 @@ class ChunkModel(BaseDataModel):
 
             await self.collection.bulk_write(operations)
         return len(chunks)
-    
+
     async def delete_chunks_by_project_id(self, project_id: str):
-        result = await self.collection.delete_many({"chunk_project_id": ObjectId(project_id)})
+        result = await self.collection.delete_many(
+            {"chunk_project_id": ObjectId(project_id)}
+        )
         return result.deleted_count
+
+    async def get_project_chunks(
+        self, chunk_project_id: ObjectId, page_no: int = 1, page_size: int = 50
+    ):
+        records = (
+            await self.collection.find({"chunk_project_id": chunk_project_id})
+            .skip((page_no - 1) * page_size)
+            .limit(page_size).to_list(length=None)
+        )
+        chunks = [DataChunk(**record) for record in records]
+        return chunks
