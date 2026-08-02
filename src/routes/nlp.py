@@ -115,11 +115,11 @@ async def index_project(
     text = search_request.text
     limit = search_request.limit
 
-    result = nlp_controller.search_vector_db_collection(
+    results = nlp_controller.search_vector_db_collection(
         project=project, text=text, limit=limit
     )
 
-    if not result:
+    if not results:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
@@ -129,6 +129,6 @@ async def index_project(
     return JSONResponse(
         content={
             "message": ResponseSignal.VECTOR_DB_SEARCH_COLLECTION_SUCCESS.value,
-            "collection_info": result,
+            "retrieved_chunks": [result.model_dump() for result in results],
         },
     )

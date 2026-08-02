@@ -4,6 +4,7 @@ from qdrant_client import QdrantClient, models
 from uuid import uuid4
 from qdrant_client.models import PointStruct
 import logging
+from models.db_schemes import RetrievedDocument
 
 
 class Qdrant(VectorDBInterface):
@@ -132,9 +133,14 @@ class Qdrant(VectorDBInterface):
             self.logger.error(f"Collection {collection_name} does not exist.")
             return False
 
-        return self.client.query_points(
+        results = self.client.query_points(
             collection_name=collection_name,
             query=vector,
             limit=limit,
             with_payload=True,
         ).points
+
+        return [
+            RetrievedDocument(text=result.payload["text"], score=result.score)
+            for result in results
+        ]

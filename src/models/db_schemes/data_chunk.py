@@ -3,13 +3,14 @@ from typing import Optional
 from bson import ObjectId
 
 
+# use mongodb with schema validation
 class DataChunk(BaseModel):
     id: Optional[ObjectId] = Field(None, alias="_id")
     chunk_text: str = Field(min_length=1)
     chunk_metadata: dict
     chunk_order: int = Field(gt=0)
     chunk_project_id: ObjectId
-    chunk_file_id : ObjectId
+    chunk_file_id: ObjectId
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -24,4 +25,6 @@ class DataChunk(BaseModel):
         ]
 
 
-# use mongodb with schema validation
+class RetrievedDocument(BaseModel):
+    text: str
+    score: float
