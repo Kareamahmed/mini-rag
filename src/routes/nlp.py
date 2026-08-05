@@ -9,7 +9,7 @@ from models import ResponseSignal
 nlp_router = APIRouter(prefix="/api/v1/nlp", tags=["api_v1", "nlp"])
 logger = logging.getLogger("uvicorn.error")
 
-
+## push
 @nlp_router.post("/index/push/{project_id}")
 async def index_project(request: Request, project_id: str, push_request: PushRequest):
     # get the project
@@ -67,7 +67,7 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
         },
     )
 
-
+## info
 @nlp_router.get("/index/info/{project_id}")
 async def index_project(request: Request, project_id: str):
     # get the project
@@ -99,7 +99,7 @@ async def index_project(request: Request, project_id: str):
         },
     )
 
-
+## search
 @nlp_router.post("/index/search/{project_id}")
 async def index_project(
     request: Request, project_id: str, search_request: SearchRequest
@@ -136,7 +136,7 @@ async def index_project(
         },
     )
 
-
+## answer
 @nlp_router.post("/index/answer/{project_id}")
 async def answer_rag(request: Request, project_id: str, search_request: SearchRequest):
 
