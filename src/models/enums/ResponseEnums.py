@@ -17,4 +17,6 @@ class ResponseSignal(Enum):
     VECTOR_DB_COLLECTION_INFO = "vector_db_collection_info"
     VECTOR_DB_COLLECTION_INFO_NOT_FOUND = "vector_db_collection_not_found"
     VECTOR_DB_SEARCH_COLLECTION_ERROR = "vector_db_search_collection_failed"
-    VECTOR_DB_SEARCH_COLLECTION_SUCCESS ="vector_db_search_collection_success"
+    VECTOR_DB_SEARCH_COLLECTION_SUCCESS = "vector_db_search_collection_success"
+    RAG_ANSWER_ERROR = "rag_answer_error"
+    RAG_ANSWER_SUCCESS = "rag_answer_success"

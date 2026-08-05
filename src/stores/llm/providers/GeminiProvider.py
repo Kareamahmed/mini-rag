@@ -10,7 +10,7 @@ class GeminiProvider(LLMInterface):
     def __init__(
         self,
         api_key: str,
-        max_input_tokens: int = 1000,
+        max_input_tokens: int = 5000,
         max_output_tokens: int = 1000,
         temperature: float = 0.0,
     ):
@@ -25,10 +25,12 @@ class GeminiProvider(LLMInterface):
 
         self.client = genai.Client(api_key=self.api_key)
         self.logger = logging.getLogger(__name__)
+        self.enums = GoogleEnums
 
     def generate_text(
         self,
         prompt: str,
+        system_prompt: str,
         chat_history: list = [],
         max_output_tokens: int = None,
         temperature: float = None,
@@ -55,6 +57,7 @@ class GeminiProvider(LLMInterface):
         interaction = self.client.interactions.create(
             model=self.generation_model_id,
             input=chat_history,
+            system_instruction=system_prompt,
             store=False,
             generation_config={
                 "max_output_tokens": max_output_tokens,

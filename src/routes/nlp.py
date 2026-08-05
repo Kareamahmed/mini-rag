@@ -28,6 +28,7 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
         vector_db_client=request.app.vector_db_client,
         generative_model=request.app.generative_model,
         embedding_model=request.app.embedding_model,
+        template_parser=request.app.template_parser,
     )
     chunk_model = await ChunkModel.get_instance(db_client=db_client)
 
@@ -78,6 +79,7 @@ async def index_project(request: Request, project_id: str):
         vector_db_client=request.app.vector_db_client,
         generative_model=request.app.generative_model,
         embedding_model=request.app.embedding_model,
+        template_parser=request.app.template_parser,
     )
 
     collection_info = nlp_controller.get_vector_db_collection_info(project=project)
@@ -111,6 +113,7 @@ async def index_project(
         vector_db_client=request.app.vector_db_client,
         generative_model=request.app.generative_model,
         embedding_model=request.app.embedding_model,
+        template_parser=request.app.template_parser,
     )
     text = search_request.text
     limit = search_request.limit
@@ -130,5 +133,41 @@ async def index_project(
         content={
             "message": ResponseSignal.VECTOR_DB_SEARCH_COLLECTION_SUCCESS.value,
             "retrieved_chunks": [result.model_dump() for result in results],
+        },
+    )
+
+
+@nlp_router.post("/index/answer/{project_id}")
+async def answer_rag(request: Request, project_id: str, search_request: SearchRequest):
+
+    db_client = request.app.db_client
+
+    project_model = await ProjectModel.get_instance(db_client=db_client)
+    project = await project_model.get_project_or_create_one(project_id=project_id)
+
+    nlp_controller = NLPController(
+        vector_db_client=request.app.vector_db_client,
+        generative_model=request.app.generative_model,
+        embedding_model=request.app.embedding_model,
+        template_parser=request.app.template_parser,
+    )
+    answer, full_prompt, chat_history = nlp_controller.answer_rag_question(
+        project=project, query=search_request.text, limit=search_request.limit
+    )
+
+    if not answer:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={
+                "message": ResponseSignal.RAG_ANSWER_ERROR.value,
+            },
+        )
+
+    return JSONResponse(
+        content={
+            "message": ResponseSignal.RAG_ANSWER_SUCCESS.value,
+            "answer": answer,
+            "full_prompt": full_prompt,
+            "chat_history": chat_history,
         },
     )
