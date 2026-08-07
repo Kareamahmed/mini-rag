@@ -11,3 +11,5 @@ pymongo==4.17.0
 google-genai==2.14.0
 cohere==7.0.8
 qdrant-client==1.18.0
+asyncpg==0.31.0
+SQLAlchemy==2.0.51

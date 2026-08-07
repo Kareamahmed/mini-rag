@@ -9,8 +9,11 @@ class Settings(BaseSettings):
     FILE_ALLOWED_TYPES: list
     FILE_DEFAULT_CHUNK_SIZE: int
 
-    MONGO_URL: str
-    MONGODB_DATABASE: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int  
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_MAIN_DATABASE: str
 
     GENERATION_BACKEND: str
     EMBEDDING_BACKEND: str
