@@ -11,7 +11,7 @@ logger = logging.getLogger("uvicorn.error")
 
 ## push
 @nlp_router.post("/index/push/{project_id}")
-async def index_project(request: Request, project_id: str, push_request: PushRequest):
+async def index_project(request: Request, project_id: int, push_request: PushRequest):
     # get the project
     db_client = request.app.db_client
     project_model = await ProjectModel.get_instance(db_client=db_client)
@@ -37,8 +37,8 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
     inserted_item_counts = 0
     while has_records:
         # get page_chunks
-        page_chunks = await chunk_model.get_project_chunks(
-            chunk_project_id=project.id, page_no=page_no
+        page_chunks = await chunk_model.get_chunks_by_project_id(
+            chunk_project_id=project.project_id, page_no=page_no
         )
 
         if not page_chunks or len(page_chunks) == 0:
@@ -69,7 +69,7 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
 
 ## info
 @nlp_router.get("/index/info/{project_id}")
-async def index_project(request: Request, project_id: str):
+async def index_project(request: Request, project_id: int):
     # get the project
     db_client = request.app.db_client
     project_model = await ProjectModel.get_instance(db_client=db_client)
@@ -102,7 +102,7 @@ async def index_project(request: Request, project_id: str):
 ## search
 @nlp_router.post("/index/search/{project_id}")
 async def index_project(
-    request: Request, project_id: str, search_request: SearchRequest
+    request: Request, project_id: int, search_request: SearchRequest
 ):
 
     db_client = request.app.db_client
@@ -138,7 +138,7 @@ async def index_project(
 
 ## answer
 @nlp_router.post("/index/answer/{project_id}")
-async def answer_rag(request: Request, project_id: str, search_request: SearchRequest):
+async def answer_rag(request: Request, project_id: int, search_request: SearchRequest):
 
     db_client = request.app.db_client
 
