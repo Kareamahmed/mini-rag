@@ -15,4 +15,3 @@ class Project(SQLAlchemyBase):
     )
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
-    assets = relationship("Asset", back_populates="project")

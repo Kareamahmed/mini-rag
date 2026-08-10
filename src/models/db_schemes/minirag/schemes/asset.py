@@ -16,7 +16,7 @@ class Asset(SQLAlchemyBase):
     asset_type = Column(String, nullable=False)
     asset_size = Column(Integer, nullable=False)
     asset_created_at = Column(
-        DateTime(timezone=True), server_default=True, nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     asset_config = Column(JSONB, nullable=True)
 
@@ -28,7 +28,7 @@ class Asset(SQLAlchemyBase):
         "Project", back_populates="assets"
     )  # many assets in one project
 
-    __table_args__ = (Index("ix_asset_project_id", asset_project_id))
+    __table_args__ = (Index("ix_asset_project_id", asset_project_id),)
 
 
 # JSON
