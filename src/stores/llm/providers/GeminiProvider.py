@@ -86,7 +86,7 @@ class GeminiProvider(LLMInterface):
 
         result = self.client.models.embed_content(
             model=self.embedding_model_id,
-            contents=self.process_text(text=text),
+            contents=text,
             config=types.EmbedContentConfig(output_dimensionality=self.embedding_size),
             # config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
         )
@@ -98,7 +98,7 @@ class GeminiProvider(LLMInterface):
     def construct_prompt(self, prompt: str, role: str):
         return {
             "type": role,
-            "content": [{"type": "text", "text": self.process_text(prompt)}],
+            "content": [{"type": "text", "text": prompt}],
         }
 
     def set_generation_model(self, model_id: str):

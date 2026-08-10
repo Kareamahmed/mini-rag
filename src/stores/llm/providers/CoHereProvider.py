@@ -89,7 +89,7 @@ class CoHereProvider(LLMInterface):
 
         response = self.client.embed(
             model=self.embedding_model_id,
-            texts=[self.process_text(text=text)],
+            texts=[text],
             input_type=input_type,
             output_dimension=self.embedding_size,
         )
@@ -107,7 +107,7 @@ class CoHereProvider(LLMInterface):
     def construct_prompt(self, prompt: str, role: str):
         return {
             "role": role,
-            "content": self.process_text(prompt),
+            "content": prompt,
         }
 
     def set_generation_model(self, model_id: str):
