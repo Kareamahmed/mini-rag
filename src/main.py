@@ -6,14 +6,19 @@ from stores import LLMProviderFactory, VectorDBFactory, TemplateParser
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
     settings = get_settings()
+
+    # postgres
     app.postgres_engine = create_async_engine(
         f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_MAIN_DATABASE}"
     )
-    app.db_client = sessionmaker(app.postgres_engine, class_=AsyncSession, expire_on_commit=False)
+    app.db_client = sessionmaker(
+        app.postgres_engine, class_=AsyncSession, expire_on_commit=False
+    )
 
     llm_provider_factory = LLMProviderFactory(settings=settings)
     vector_db_provider_factory = VectorDBFactory(settings=settings)
