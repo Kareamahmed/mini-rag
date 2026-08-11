@@ -31,10 +31,12 @@ class GeminiProvider(LLMInterface):
         self,
         prompt: str,
         system_prompt: str,
-        chat_history: list = [],
+        chat_history: list = None,
         max_output_tokens: int = None,
         temperature: float = None,
     ):
+        if chat_history is None:
+            chat_history = []
 
         if not self.client:
             self.logger.error("Gemini client was not set")

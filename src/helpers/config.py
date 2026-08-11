@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
 
 
 class Settings(BaseSettings):
@@ -10,7 +11,7 @@ class Settings(BaseSettings):
     FILE_DEFAULT_CHUNK_SIZE: int
 
     POSTGRES_HOST: str
-    POSTGRES_PORT: int  
+    POSTGRES_PORT: int
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_MAIN_DATABASE: str
@@ -30,6 +31,7 @@ class Settings(BaseSettings):
     EMBEDDING_SIZE: int
 
     ## VectorDB config
+    VECTOR_DB_BACKEND_lITERAL: List[str]
     VECTOR_DB_BACKEND: str
     VECTOR_DB_PATH: str
     VECTOR_DISTANCE_METRIC: str

@@ -9,6 +9,7 @@ from models import ResponseSignal
 nlp_router = APIRouter(prefix="/api/v1/nlp", tags=["api_v1", "nlp"])
 logger = logging.getLogger("uvicorn.error")
 
+
 ## push
 @nlp_router.post("/index/push/{project_id}")
 async def index_project(request: Request, project_id: int, push_request: PushRequest):
@@ -67,6 +68,7 @@ async def index_project(request: Request, project_id: int, push_request: PushReq
         },
     )
 
+
 ## info
 @nlp_router.get("/index/info/{project_id}")
 async def index_project(request: Request, project_id: int):
@@ -98,6 +100,7 @@ async def index_project(request: Request, project_id: int):
             "collection_info": collection_info,
         },
     )
+
 
 ## search
 @nlp_router.post("/index/search/{project_id}")
@@ -136,6 +139,7 @@ async def index_project(
         },
     )
 
+
 ## answer
 @nlp_router.post("/index/answer/{project_id}")
 async def answer_rag(request: Request, project_id: int, search_request: SearchRequest):
@@ -152,7 +156,10 @@ async def answer_rag(request: Request, project_id: int, search_request: SearchRe
         template_parser=request.app.template_parser,
     )
     answer, full_prompt, chat_history = nlp_controller.answer_rag_question(
-        project=project, query=search_request.text, limit=search_request.limit
+        project=project,
+        query=search_request.text,
+        limit=search_request.limit,
+        chat_history=[],
     )
 
     if not answer:
