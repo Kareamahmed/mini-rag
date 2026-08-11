@@ -30,10 +30,19 @@ $ mini-rag-app\Scripts\activate
 ```bash
 $ pip install -r requirements.txt
 ```
-Setup the environment variables
+### Setup the environment variables
+
 ```bash
 $ cp .env.example .env
 ```
+Set your environment variables in the `.env` file. Like `GEMINI_API_KEY` value.
+
+### Run Alembic Migration
+
+```bash
+$ alembic upgrade head
+```
+
 ## Run Docker Compose Services
 
 ```bash
@@ -49,7 +58,6 @@ $ cp .env.example .env
 $ cd docker
 $ sudo docker compose up -d
 ```
-Set your environment variables in the .env file. Like OPENAI_API_KEY value.
 
 ## Run the FastAPI server
 ```bash
