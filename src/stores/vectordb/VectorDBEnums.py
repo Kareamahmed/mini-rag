@@ -13,6 +13,7 @@ class DistanceMetricEnums(Enum):
 
 class PgvectorTableSchemaEnums(Enum):
     ID = "id"
+    CHUNK_ID = "chunk_id"
     Text = "text"
     VECTOR = "vector"
     METADATA = "metadata"
