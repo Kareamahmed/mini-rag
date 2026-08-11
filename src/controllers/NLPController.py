@@ -94,7 +94,6 @@ class NLPController(BaseController):
 
         # construct llm prompt
         system_prompt = self.template_parser.get("rag", "system_prompt")
-        chat_history = []
         document_prompt = "\n".join(
             [
                 self.template_parser.get(
