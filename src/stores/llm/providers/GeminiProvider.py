@@ -31,10 +31,12 @@ class GeminiProvider(LLMInterface):
         self,
         prompt: str,
         system_prompt: str,
-        chat_history: list = [],
+        chat_history: list = None,
         max_output_tokens: int = None,
         temperature: float = None,
     ):
+        if chat_history is None:
+            chat_history = []
 
         if not self.client:
             self.logger.error("Gemini client was not set")
@@ -72,7 +74,7 @@ class GeminiProvider(LLMInterface):
         for step in interaction.steps:
             chat_history.append(step.model_dump())
 
-        return interaction.output_text, chat_history
+        return interaction.output_text
 
     def embed_text(self, text, document_type=None):
 
