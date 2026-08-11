@@ -82,9 +82,7 @@ class NLPController(BaseController):
         )
         return result
 
-    def answer_rag_question(
-        self, project: Project, query: str, chat_history: list = None, limit: int = 5
-    ):
+    def answer_rag_question(self, project: Project, query: str, limit: int = 5):
         # get related documents from vector db
         retrieved_documents = self.search_vector_db_collection(
             project=project, text=query, limit=limit
@@ -113,8 +111,8 @@ class NLPController(BaseController):
 
         full_prompt = "\n\n".join([document_prompt, footer_prompt])
 
-        answer = self.generative_model.generate_text(
-            prompt=full_prompt, system_prompt=system_prompt, chat_history=chat_history
+        answer, chat_history = self.generative_model.generate_text(
+            prompt=full_prompt, system_prompt=system_prompt
         )
         return answer, full_prompt, chat_history
 
