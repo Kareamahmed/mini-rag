@@ -71,7 +71,7 @@ async def index_project(request: Request, project_id: int, push_request: PushReq
 
 ## info
 @nlp_router.get("/index/info/{project_id}")
-async def index_project(request: Request, project_id: int):
+async def get_project_index_info(request: Request, project_id: int):
     # get the project
     db_client = request.app.db_client
     project_model = await ProjectModel.get_instance(db_client=db_client)
@@ -104,7 +104,7 @@ async def index_project(request: Request, project_id: int):
 
 ## search
 @nlp_router.post("/index/search/{project_id}")
-async def index_project(
+async def search_index(
     request: Request, project_id: int, search_request: SearchRequest
 ):
 
