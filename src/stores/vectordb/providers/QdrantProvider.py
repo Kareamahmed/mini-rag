@@ -7,7 +7,7 @@ import logging
 from models.db_schemes import RetrievedDocument
 
 
-class Qdrant(VectorDBInterface):
+class QdrantProvider(VectorDBInterface):
 
     def __init__(self, db_path: str, distance_metric: str):
 

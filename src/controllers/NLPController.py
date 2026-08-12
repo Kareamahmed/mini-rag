@@ -1,6 +1,6 @@
 from .BaseController import BaseController
 from models.db_schemes import Project, DataChunk
-from stores.vectordb.providers.Qdrant import Qdrant
+from stores.vectordb.providers.QdrantProvider import Qdrant
 from stores.llm.LLMEnums import DocumentTypeEnums
 from typing import List
 import json

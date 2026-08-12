@@ -1,5 +1,5 @@
 from helpers.config import Settings
-from .providers.Qdrant import Qdrant
+from .providers.QdrantProvider import Qdrant
 from controllers.BaseController import BaseController
 from .VectorDBEnums import VectorDBEnums
 
