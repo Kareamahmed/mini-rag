@@ -14,7 +14,7 @@ class DistanceMetricEnums(Enum):
 class PgvectorTableSchemaEnums(Enum):
     ID = "id"
     CHUNK_ID = "chunk_id"
-    Text = "text"
+    TEXT = "text"
     VECTOR = "vector"
     METADATA = "metadata"
     _PREFIX = "pgvector"
