@@ -22,22 +22,22 @@ class Qdrant(VectorDBInterface):
 
         self.logger = logging.getLogger(__name__)
 
-    def connect(self):
+    async def connect(self):
         self.client = QdrantClient(path=self.db_path)
 
-    def disconnect(self):
+    async def disconnect(self):
         self.client = None
 
-    def is_collection_exists(self, collection_name):
+    async def is_collection_exists(self, collection_name):
         return self.client.collection_exists(collection_name=collection_name)
 
-    def delete_collection(self, collection_name):
-        if self.is_collection_exists(collection_name=collection_name):
+    async def delete_collection(self, collection_name):
+        if await self.is_collection_exists(collection_name=collection_name):
             return self.client.delete_collection(
                 collection_name=collection_name
             )  # return True or False
 
-    def get_collection_info(self, collection_name):
+    async def get_collection_info(self, collection_name):
         try:
             return self.client.get_collection(collection_name=collection_name)
         except Exception as e:
@@ -46,13 +46,13 @@ class Qdrant(VectorDBInterface):
             )
             return None
 
-    def get_all_collections(self):
+    async def get_all_collections(self):
         return self.client.get_collections()
 
-    def create_collection(self, collection_name, embedding_size, do_reset=False):
+    async def create_collection(self, collection_name, embedding_size, do_reset=False):
         if do_reset:
-            self.delete_collection(collection_name=collection_name)
-        if not self.is_collection_exists(collection_name=collection_name):
+            await self.delete_collection(collection_name=collection_name)
+        if not await self.is_collection_exists(collection_name=collection_name):
             self.client.create_collection(
                 collection_name=collection_name,
                 vectors_config=models.VectorParams(
@@ -62,8 +62,10 @@ class Qdrant(VectorDBInterface):
             return True
         return False
 
-    def insert_one(self, collection_name, text, vector, metadata=None , chunk_id=None):
-        if not self.is_collection_exists(collection_name=collection_name):
+    async def insert_one(
+        self, collection_name, text, vector, metadata=None, chunk_id=None
+    ):
+        if not await self.is_collection_exists(collection_name=collection_name):
             self.logger.error(f"Collection {collection_name} does not exist.")
             return False
 
@@ -85,10 +87,16 @@ class Qdrant(VectorDBInterface):
             self.logger.error(f"Failed to insert point: {e}")
             return False
 
-    def insert_many(
-        self, collection_name, texts, vectors, metadata=None, chunk_ids=None, batch_size=50
+    async def insert_many(
+        self,
+        collection_name,
+        texts,
+        vectors,
+        metadata=None,
+        chunk_ids=None,
+        batch_size=50,
     ):
-        if not self.is_collection_exists(collection_name=collection_name):
+        if not await self.is_collection_exists(collection_name=collection_name):
             self.logger.error(f"Collection {collection_name} does not exist.")
             return False
 
@@ -127,9 +135,9 @@ class Qdrant(VectorDBInterface):
             self.logger.error(f"Failed to insert points: {e}")
             return False
 
-    def search_by_vector(self, collection_name, vector, limit):
+    async def search_by_vector(self, collection_name, vector, limit):
 
-        if not self.is_collection_exists(collection_name=collection_name):
+        if not await self.is_collection_exists(collection_name=collection_name):
             self.logger.error(f"Collection {collection_name} does not exist.")
             return False
 

@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     VECTOR_DB_BACKEND: str
     VECTOR_DB_PATH: str
     VECTOR_DISTANCE_METRIC: str
+    VECTOR_DB_PGVECT_INDEX_THRESHOLD: int
 
     ## template config
     PRIMARY_LANG: str
