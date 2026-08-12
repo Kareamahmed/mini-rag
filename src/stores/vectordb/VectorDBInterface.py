@@ -36,7 +36,7 @@ class VectorDBInterface(ABC):
 
     @abstractmethod
     def insert_one(
-        self, collection_name: str, text: str, vector: list, metadata: dict = None
+        self, collection_name: str, text: str, vector: list, metadata: dict = None , chunk_id: int = None
     ):
         pass
 
@@ -47,6 +47,7 @@ class VectorDBInterface(ABC):
         texts: list,
         vectors: list,
         metadata: list = None,
+        chunk_ids: list = None,
         batch_size: int = 50,
     ):
         pass

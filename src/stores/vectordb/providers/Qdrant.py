@@ -62,7 +62,7 @@ class Qdrant(VectorDBInterface):
             return True
         return False
 
-    def insert_one(self, collection_name, text, vector, metadata=None):
+    def insert_one(self, collection_name, text, vector, metadata=None , chunk_id=None):
         if not self.is_collection_exists(collection_name=collection_name):
             self.logger.error(f"Collection {collection_name} does not exist.")
             return False
@@ -86,7 +86,7 @@ class Qdrant(VectorDBInterface):
             return False
 
     def insert_many(
-        self, collection_name, texts, vectors, metadata=None, batch_size=50
+        self, collection_name, texts, vectors, metadata=None, chunk_ids=None, batch_size=50
     ):
         if not self.is_collection_exists(collection_name=collection_name):
             self.logger.error(f"Collection {collection_name} does not exist.")
