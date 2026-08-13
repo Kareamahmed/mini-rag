@@ -9,11 +9,18 @@ from models.db_schemes import RetrievedDocument
 
 class QdrantProvider(VectorDBInterface):
 
-    def __init__(self, db_path: str, distance_metric: str):
+    def __init__(
+        self,
+        db_path: str,
+        distance_metric: str = None,
+        default_vector_size: int = 512,
+        index_threshold: int = 100,
+    ):
 
         self.db_path = db_path
         self.distance_metric = None
         self.client = None
+        self.default_vector_size = default_vector_size
 
         if distance_metric == DistanceMetricEnums.DOT.value:
             self.distance_metric = models.Distance.DOT

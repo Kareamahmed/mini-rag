@@ -19,6 +19,8 @@ class VectorDBFactory:
                     db_path=self.settings.VECTOR_DB_PATH
                 ),
                 distance_metric=self.settings.VECTOR_DISTANCE_METRIC,
+                index_threshold=self.settings.VECTOR_DB_PGVECT_INDEX_THRESHOLD,
+                default_vector_size=self.settings.EMBEDDING_SIZE,
             )
         if provider_name == VectorDBEnums.PGVECTOR.value:
             return PGVectorProvider(
