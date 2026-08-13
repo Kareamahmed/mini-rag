@@ -255,7 +255,7 @@ class PGVectorProvider(VectorDBInterface):
                         "limit": limit,
                     },
                 )
-                rows = result.fetchall()
+                rows = result.fetchall() # return a list of tuples (text, score)
 
         if not rows or len(rows) == 0:
             return None

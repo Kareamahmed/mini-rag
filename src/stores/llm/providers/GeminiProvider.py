@@ -3,6 +3,7 @@ from ..LLMEnums import GoogleEnums
 from google import genai
 from google.genai import types
 import logging
+from typing import List, Union
 
 
 class GeminiProvider(LLMInterface):
@@ -76,7 +77,7 @@ class GeminiProvider(LLMInterface):
 
         return interaction.output_text
 
-    def embed_text(self, text, document_type=None):
+    def embed_text(self, text: Union[str, List[str]], document_type: str = None):
 
         if not self.client:
             self.logger.error("Gemini client was not set")
@@ -85,17 +86,22 @@ class GeminiProvider(LLMInterface):
         if not self.embedding_model_id:
             self.logger.error("Embedding model for Gemini client was not set")
             return None
+        
+        if isinstance(text, str):
+            text = [text]
 
         result = self.client.models.embed_content(
             model=self.embedding_model_id,
             contents=text,
             config=types.EmbedContentConfig(output_dimensionality=self.embedding_size),
-            # config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
         )
 
         if not result or not result.embeddings:
             self.logger.error("Error while embedding text with Gemini")
             return None
+
+        embeddings = [embedding.values for embedding in result.embeddings]
+        return embeddings
 
     def construct_prompt(self, prompt: str, role: str):
         return {
