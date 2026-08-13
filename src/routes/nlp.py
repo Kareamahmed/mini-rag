@@ -5,6 +5,7 @@ import logging
 from models import ProjectModel, ChunkModel
 from controllers import NLPController
 from models import ResponseSignal
+from tqdm.auto import tqdm
 
 nlp_router = APIRouter(prefix="/api/v1/nlp", tags=["api_v1", "nlp"])
 logger = logging.getLogger("uvicorn.error")
@@ -33,9 +34,14 @@ async def index_project(request: Request, project_id: int, push_request: PushReq
     )
     chunk_model = await ChunkModel.get_instance(db_client=db_client)
 
+    total_chunks_count = await chunk_model.get_total_chunks_count(
+        project_id=project.project_id
+    )
+    pbar = tqdm(total=total_chunks_count, desc="Indexing Chunks", position=0)
     has_records = True
     page_no = 1
     inserted_item_counts = 0
+
     while has_records:
         # get page_chunks
         page_chunks = await chunk_model.get_chunks_by_project_id(
@@ -48,7 +54,7 @@ async def index_project(request: Request, project_id: int, push_request: PushReq
         else:
             page_no += 1
 
-        is_inserted = nlp_controller.index_into_vector_db(
+        is_inserted =await nlp_controller.index_into_vector_db(
             project=project, chunks=page_chunks, do_reset=push_request.do_reset
         )
 
@@ -60,7 +66,9 @@ async def index_project(request: Request, project_id: int, push_request: PushReq
                 },
             )
         inserted_item_counts += len(page_chunks)
+        pbar.update(len(page_chunks))
 
+    pbar.close()
     return JSONResponse(
         content={
             "message": ResponseSignal.INSERT_INTO_VECTOR_DB_SUCCESS.value,
@@ -84,7 +92,7 @@ async def get_project_index_info(request: Request, project_id: int):
         template_parser=request.app.template_parser,
     )
 
-    collection_info = nlp_controller.get_vector_db_collection_info(project=project)
+    collection_info =await nlp_controller.get_vector_db_collection_info(project=project)
 
     if not collection_info:
         return JSONResponse(
@@ -121,7 +129,7 @@ async def search_index(
     text = search_request.text
     limit = search_request.limit
 
-    results = nlp_controller.search_vector_db_collection(
+    results = await nlp_controller.search_vector_db_collection(
         project=project, text=text, limit=limit
     )
 
@@ -155,7 +163,7 @@ async def answer_rag(request: Request, project_id: int, search_request: SearchRe
         embedding_model=request.app.embedding_model,
         template_parser=request.app.template_parser,
     )
-    answer, full_prompt, chat_history = nlp_controller.answer_rag_question(
+    answer, full_prompt, chat_history = await nlp_controller.answer_rag_question(
         project=project,
         query=search_request.text,
         limit=search_request.limit,

@@ -8,6 +8,7 @@ from models import ResponseSignal, ProjectModel, ChunkModel, AssetModel, AssetTy
 import logging
 from .schemes.data import ProcessRequest
 from models.db_schemes import DataChunk, Asset
+from controllers import NLPController
 
 logger = logging.getLogger("uvicorn.error")
 data_router = APIRouter(prefix="/api/v1/data", tags=["api_v1", "data"])
@@ -89,6 +90,27 @@ async def process_endpoint(
     chunk_model = await ChunkModel.get_instance(db_client=db_client)
     asset_model = await AssetModel.get_instance(db_client=db_client)
 
+    nlp_controller = NLPController(
+        vector_db_client=request.app.vector_db_client,
+        generative_model=request.app.generative_model,
+        embedding_model=request.app.embedding_model,
+        template_parser=request.app.template_parser,
+    )
+
+    if reset == 1:
+        # delete vectors
+        collection_name = nlp_controller.create_collection_name(
+            project_id=project.project_id
+        )
+        _ = await request.app.vector_db_client.delete_collection(
+            collection_name=collection_name
+        )
+        # delete chunks
+        deleted_count = await chunk_model.delete_chunks_by_project_id(
+            project_id=project.project_id
+        )
+        return deleted_count
+
     project_files_ids = {}
     if process_request.file_name:
         record = await asset_model.get_asset_record(
@@ -117,12 +139,6 @@ async def process_endpoint(
                 "message": ResponseSignal.NO_FILES_ERROR.value,
             },
         )
-
-    if reset == 1:
-        deleted_count = await chunk_model.delete_chunks_by_project_id(
-            project_id=project.project_id
-        )
-        return deleted_count
 
     process_controller = ProcessController(project_id=project_id)
 

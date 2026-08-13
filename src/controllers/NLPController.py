@@ -1,6 +1,8 @@
 from .BaseController import BaseController
 from models.db_schemes import Project, DataChunk
-from stores.vectordb.providers.QdrantProvider import Qdrant
+
+# from stores.vectordb.providers.QdrantProvider import QdrantProvider
+from stores.vectordb.providers.PGVectorProvider import PGVectorProvider
 from stores.llm.LLMEnums import DocumentTypeEnums
 from typing import List
 import json
@@ -10,7 +12,7 @@ from stores import TemplateParser
 class NLPController(BaseController):
     def __init__(
         self,
-        vector_db_client: Qdrant,
+        vector_db_client: PGVectorProvider,
         generative_model,
         embedding_model,
         template_parser: TemplateParser,
@@ -35,7 +37,10 @@ class NLPController(BaseController):
         return json.loads(json.dumps(collection_info, default=lambda o: o.__dict__))
 
     async def index_into_vector_db(
-        self, project: Project, chunks: List[DataChunk], do_reset: bool = False
+        self,
+        project: Project,
+        chunks: List[DataChunk],
+        do_reset: bool = False,
     ):
         ## get collection name
         collection_name = self.create_collection_name(project_id=project.project_id)
@@ -50,13 +55,11 @@ class NLPController(BaseController):
         ## mange chunks
         texts = [chunk.chunk_text for chunk in chunks]
         metadata = [chunk.chunk_metadata for chunk in chunks]
+        chunk_ids = [ chunk.chunk_id for chunk in chunks]
 
-        vectors = [
-            self.embedding_model.embed_text(
-                text=text, document_type=DocumentTypeEnums.DOCUMENT.value
-            )
-            for text in texts
-        ]
+        vectors = self.embedding_model.embed_text(
+            text=texts, document_type=DocumentTypeEnums.DOCUMENT.value
+        )
 
         # insert into vector_db
         await self.vector_db_client.insert_many(
@@ -64,25 +67,32 @@ class NLPController(BaseController):
             texts=texts,
             vectors=vectors,
             metadata=metadata,
+            chunk_ids=chunk_ids
         )
         return True
 
     async def search_vector_db_collection(
         self, project: Project, text: str, limit: int = 5
     ):
+        query_vector = None
         # get collection name
         collection_name = self.create_collection_name(project_id=project.project_id)
 
         # embedding text
-        vector = self.embedding_model.embed_text(
+        vectors = self.embedding_model.embed_text(
             text=text, document_type=DocumentTypeEnums.QUERY.value
         )
-        if not vector or len(vector) == 0:
+        if not vectors or len(vectors) == 0:
             return False
 
+        if isinstance(vectors, list) and len(vectors) > 0:
+            query_vector = vectors[0]
+
+        if not query_vector:
+            return False
         # search
         result = await self.vector_db_client.search_by_vector(
-            collection_name=collection_name, vector=vector, limit=limit
+            collection_name=collection_name, vector=query_vector, limit=limit
         )
         return result
 
@@ -124,4 +134,4 @@ class NLPController(BaseController):
         return answer, full_prompt, chat_history
 
     def create_collection_name(self, project_id: str):
-        return f"collection_{project_id}".strip()
+        return f"collection_{self.vector_db_client.default_vector_size}_{project_id}".strip()
