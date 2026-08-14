@@ -1,3 +1,5 @@
+import json
+
 from ..VectorDBInterface import VectorDBInterface
 from ..VectorDBEnums import (
     DistanceMetricEnums,
@@ -38,7 +40,7 @@ class PGVectorProvider(VectorDBInterface):
             async with session.begin():
                 await session.execute(sql_text("CREATE EXTENSION IF NOT EXISTS vector"))
 
-    def disconnect(self):
+    async def disconnect(self):
         pass
 
     async def is_collection_exists(self, collection_name):
@@ -73,7 +75,7 @@ class PGVectorProvider(VectorDBInterface):
                 count_rows = count_results.scalar_one_or_none()
 
             return {
-                "table_info": table_info,
+                "table_info": dict(table_info),
                 "count_rows": count_rows,
             }
 
@@ -88,7 +90,7 @@ class PGVectorProvider(VectorDBInterface):
             return rows
 
     async def delete_collection(self, collection_name):
-        if not self.is_collection_exists(collection_name=collection_name):
+        if not await self.is_collection_exists(collection_name=collection_name):
             self.logger.error(f"Collection {collection_name} does not exist.")
             return False
         async with self.db_client() as session:
@@ -103,7 +105,9 @@ class PGVectorProvider(VectorDBInterface):
         if do_reset:
             await self.delete_collection(collection_name=collection_name)
 
-        is_table_existed = self.is_collection_exists(collection_name=collection_name)
+        is_table_existed = await self.is_collection_exists(
+            collection_name=collection_name
+        )
 
         if not is_table_existed:
             async with self.db_client() as session:
@@ -134,7 +138,9 @@ class PGVectorProvider(VectorDBInterface):
         self, collection_name, text, vector, metadata=None, chunk_id=None
     ):
 
-        is_table_existed = self.is_collection_exists(collection_name=collection_name)
+        is_table_existed = await self.is_collection_exists(
+            collection_name=collection_name
+        )
         if not is_table_existed:
             self.logger.error(
                 f"cannot insert into collection {collection_name} because it does not exist."
@@ -159,16 +165,19 @@ class PGVectorProvider(VectorDBInterface):
                     VALUES (:text, :vector, :metadata, :chunk_id)
                     RETURNING {id_col};
                     """)
+
+                meta_json = json.dumps(metadata) if metadata is not None else "{}"
                 result = await session.execute(
                     sql,
                     {
                         "text": text,
                         "vector": "[" + ",".join([str(v) for v in vector]) + "]",
-                        "metadata": metadata,
+                        "metadata": meta_json,
                         "chunk_id": chunk_id,
                     },
                 )
                 inserted_id = result.scalar_one()
+        await self.create_index(collection_name=collection_name)
         return inserted_id
 
     async def insert_many(
@@ -180,7 +189,9 @@ class PGVectorProvider(VectorDBInterface):
         chunk_ids=None,
         batch_size=50,
     ):
-        is_table_existed = self.is_collection_exists(collection_name=collection_name)
+        is_table_existed = await self.is_collection_exists(
+            collection_name=collection_name
+        )
         if not is_table_existed:
             self.logger.error(
                 f"cannot insert into collection {collection_name} because it does not exist."
@@ -211,13 +222,18 @@ class PGVectorProvider(VectorDBInterface):
                     for text, vector, meta, chunk_id in zip(
                         batch_texts, batch_vectors, batch_metadata, batch_chunk_ids
                     ):
+                        meta_json = (
+                            json.dumps(meta, ensure_ascii=False)
+                            if meta is not None
+                            else "{}"
+                        )
                         values.append(
                             {
                                 "text": text,
                                 "vector": "["
                                 + ",".join([str(v) for v in vector])
                                 + "]",
-                                "metadata": meta,
+                                "metadata": meta_json,
                                 "chunk_id": chunk_id,
                             },
                         )
@@ -226,10 +242,13 @@ class PGVectorProvider(VectorDBInterface):
                         VALUES (:text, :vector, :metadata, :chunk_id);
                         """)
                     await session.execute(sql, values)
+        await self.create_index(collection_name=collection_name)
         return True
 
     async def search_by_vector(self, collection_name, vector, limit):
-        is_table_existed = self.is_collection_exists(collection_name=collection_name)
+        is_table_existed = await self.is_collection_exists(
+            collection_name=collection_name
+        )
         if not is_table_existed:
             self.logger.error(
                 f"cannot search in collection {collection_name} because it does not exist."
@@ -255,7 +274,7 @@ class PGVectorProvider(VectorDBInterface):
                         "limit": limit,
                     },
                 )
-                rows = result.fetchall() # return a list of tuples (text, score)
+                rows = result.fetchall()  # return a list of tuples (text, score)
 
         if not rows or len(rows) == 0:
             return None
@@ -307,17 +326,23 @@ class PGVectorProvider(VectorDBInterface):
                 self.logger.info(
                     f"Index {index_name} created successfully for collection {collection_name}."
                 )
-    async def reset_index(self, collection_name , index_type: str = PgvectorIndexTypeEnums.HNSW.value):
+
+    async def reset_index(
+        self, collection_name, index_type: str = PgvectorIndexTypeEnums.HNSW.value
+    ):
 
         async with self.db_client() as session:
             async with session.begin():
                 index_name = self.index_name(collection_name)
-                sql = sql_text(f'DROP INDEX IF EXISTS {index_name};')
+                sql = sql_text(f"DROP INDEX IF EXISTS {index_name};")
                 await session.execute(sql)
                 self.logger.info(
                     f"Index {index_name} dropped successfully for collection {collection_name}."
                 )
-        return await self.create_index(collection_name=collection_name , index_type=index_type)
+        return await self.create_index(
+            collection_name=collection_name, index_type=index_type
+        )
+
 
 # pgvector
 # cosine distance = 1 - cos(θ)

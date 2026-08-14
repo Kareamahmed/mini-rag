@@ -109,7 +109,7 @@ async def process_endpoint(
         deleted_count = await chunk_model.delete_chunks_by_project_id(
             project_id=project.project_id
         )
-        return deleted_count
+        # return deleted_count
 
     project_files_ids = {}
     if process_request.file_name:

@@ -27,7 +27,7 @@ class QdrantProvider(VectorDBInterface):
         elif distance_metric == DistanceMetricEnums.COSINE.value:
             self.distance_metric = models.Distance.COSINE
 
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("uvicorn")
 
     async def connect(self):
         self.client = QdrantClient(path=self.db_path)
@@ -40,9 +40,12 @@ class QdrantProvider(VectorDBInterface):
 
     async def delete_collection(self, collection_name):
         if await self.is_collection_exists(collection_name=collection_name):
-            return self.client.delete_collection(
+            deleted = self.client.delete_collection(
                 collection_name=collection_name
             )  # return True or False
+            self.logger.info(f"Collection {collection_name} deleted successfully.")
+
+            return deleted
 
     async def get_collection_info(self, collection_name):
         try:

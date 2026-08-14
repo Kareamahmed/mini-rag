@@ -54,10 +54,10 @@ async def index_project(request: Request, project_id: int, push_request: PushReq
         else:
             page_no += 1
 
-        is_inserted =await nlp_controller.index_into_vector_db(
+        is_inserted = await nlp_controller.index_into_vector_db(
             project=project, chunks=page_chunks, do_reset=push_request.do_reset
         )
-
+        push_request.do_reset = 0
         if not is_inserted:
             return JSONResponse(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -92,7 +92,9 @@ async def get_project_index_info(request: Request, project_id: int):
         template_parser=request.app.template_parser,
     )
 
-    collection_info =await nlp_controller.get_vector_db_collection_info(project=project)
+    collection_info = await nlp_controller.get_vector_db_collection_info(
+        project=project
+    )
 
     if not collection_info:
         return JSONResponse(

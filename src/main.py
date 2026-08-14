@@ -21,7 +21,7 @@ async def lifespan(app: FastAPI):
     )
 
     llm_provider_factory = LLMProviderFactory(settings=settings)
-    vector_db_provider_factory = VectorDBFactory(settings=settings)
+    vector_db_provider_factory = VectorDBFactory(settings=settings , db_client=app.db_client)
     # generative model
     app.generative_model = llm_provider_factory.create_provider(
         provider_name=settings.GENERATION_BACKEND
@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     app.vector_db_client = vector_db_provider_factory.create_provider(
         provider_name=settings.VECTOR_DB_BACKEND
     )
-    app.vector_db_client.connect()
+    await app.vector_db_client.connect()
 
     app.template_parser = TemplateParser(
         language=settings.PRIMARY_LANG, default_language=settings.DEFAULT_LANG
@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
     yield
 
     app.postgres_engine.dispose()
-    app.vector_db_client.disconnect()
+    await app.vector_db_client.disconnect()
 
 
 app = FastAPI(lifespan=lifespan)
