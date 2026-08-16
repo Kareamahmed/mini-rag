@@ -5,6 +5,7 @@ from helpers.config import get_settings
 from stores import LLMProviderFactory, VectorDBFactory, TemplateParser
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from utils.metrics import setup_metrics
 
 
 @asynccontextmanager
@@ -21,7 +22,9 @@ async def lifespan(app: FastAPI):
     )
 
     llm_provider_factory = LLMProviderFactory(settings=settings)
-    vector_db_provider_factory = VectorDBFactory(settings=settings , db_client=app.db_client)
+    vector_db_provider_factory = VectorDBFactory(
+        settings=settings, db_client=app.db_client
+    )
     # generative model
     app.generative_model = llm_provider_factory.create_provider(
         provider_name=settings.GENERATION_BACKEND
@@ -51,6 +54,9 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+setup_metrics(app)
+
 app.include_router(base.base_router)
 app.include_router(data.data_router)
 app.include_router(nlp.nlp_router)
