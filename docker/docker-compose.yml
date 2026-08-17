@@ -1,18 +1,5 @@
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
-    ports:
-      - "27007:27017"
-    volumes:
-      - mongo-data:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-    networks:
-      - backend
-    restart: always
-
+  # Postgres (pgvector)
   pgvector:
     image: pgvector/pgvector:0.8.6-pg18-trixie
     container_name: pgvector
@@ -20,14 +7,16 @@ services:
       - "5432:5432"
     volumes:
       - pgvector_data:/var/lib/postgresql
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - ./env/.env.postgres
     networks:
       - backend
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-networks:
-  backend:
-volumes:
-  mongo-data:
-  pgvector_data:
+
