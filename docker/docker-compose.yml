@@ -34,3 +34,17 @@ services:
       pgvector:
         condition: service_healthy
 
+  # Qdrant (vector database)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - backend
+    restart: always
+
+
