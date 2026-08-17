@@ -64,7 +64,6 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--web.enable-lifecycle" # enable reload endpoint
 
-      
   # Grafana
   grafana:
     image: grafana/grafana:latest
@@ -76,6 +75,26 @@ services:
     env_file:
       - ./env/.env.grafana
     networks:
-      - backend 
+      - backend
     restart: always
+    depends_on:
+      - prometheus
 
+  # node exporter for system
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - backend
+    restart: always
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
