@@ -17,6 +17,20 @@ services:
       pgvector:
         condition: service_healthy
 
+  # Nginx Service 
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - backend
+    restart: always
+    depends_on:
+      - fastapi
+
   # Postgres (pgvector)
   pgvector:
     image: pgvector/pgvector:0.8.6-pg18-trixie
@@ -31,11 +45,11 @@ services:
       - backend
     restart: always
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
-      start_period: 10s # Give PostgreSQL 10 seconds to start up before considering health-check failures.
+      start_period: 20s # Give PostgreSQL 10 seconds to start up before considering health-check failures.
 
   # Prometheus PostgreSQL exporter for postgres metrics
   postgres_exporter:
