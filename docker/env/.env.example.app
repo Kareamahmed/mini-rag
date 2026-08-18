@@ -1,0 +1,40 @@
+APP_NAME = "mini-RAG"
+APP_VERSION = "0.1"
+
+FILL_MAX_SIZE = 10
+FILE_ALLOWED_TYPES = ["text/plain","application/pdf"]
+FILE_DEFAULT_CHUNK_SIZE = 512000 #512KB 
+
+# Postgres
+POSTGRES_HOST = ""
+POSTGRES_PORT = 
+POSTGRES_USER = ""
+POSTGRES_PASSWORD = ""
+POSTGRES_MAIN_DATABASE = ""
+
+
+## LLM Config 
+GENERATION_BACKEND = "gemini"
+EMBEDDING_BACKEND = "cohere"
+
+GEMINI_API_KEY = "Key"
+COHERE_API_KEY = "Key"
+
+GENERATION_MODEL_ID = "gemini-3.5-flash-lite"
+EMBEDDING_MODEL_ID = "embed-v4.0" # Dimensions One of ‘[256, 512, 1024, 1536 (default)]‘
+
+MAX_INPUT_TOKENS = 1000
+MAX_OUTPUT_TOKENS = 1000
+TEMPERATURE = 0.1
+EMBEDDING_SIZE = 512
+
+## VectorDB config 
+VECTOR_DB_BACKEND_lITERAL = ["qdrant" , "pgvector"]
+VECTOR_DB_BACKEND = "pgvector"
+VECTOR_DB_PATH = "qdrant_db"
+VECTOR_DISTANCE_METRIC = "cosine"
+VECTOR_DB_PGVECT_INDEX_THRESHOLD = 100
+
+## template config 
+PRIMARY_LANG = "en"
+DEFAULT_LANG = "en"
